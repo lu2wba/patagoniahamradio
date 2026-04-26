@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LU2WBA – Digital Mode Station | Comodoro Rivadavia</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1a1d21;
+    --bg2: #22262c;
+    --bg3: #2a2f38;
+    --green: #39ff14;
+    --green2: #00e676;
+    --green-dim: #1a7a06;
+    --gray: #8b95a1;
+    --light: #c8d0da;
+    --white: #eef2f7;
+    --accent: #ff6b00;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--light);
+    font-family: 'Barlow', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ---- TOPBAR solar data ---- */
+  #topbar {
+    background: #0d0f12;
+    border-bottom: 1px solid var(--green-dim);
+    padding: 6px 20px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+  }
+  #topbar span { color: var(--gray); }
+  #topbar b { color: var(--green); }
+  .topbar-label { color: var(--green-dim); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* ---- HEADER / HERO ---- */
+  #hero {
+    position: relative;
+    height: 420px;
+    overflow: hidden;
+  }
+  #hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 40%;
+    filter: brightness(0.45) saturate(0.7);
+  }
+  #hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, 
+      rgba(26,29,33,0.2) 0%, 
+      rgba(26,29,33,0.5) 60%, 
+      rgba(26,29,33,1) 100%);
+  }
+  #hero-shack {
+    position: absolute;
+    top: 50%;
+    left: 36%;
+    transform: translate(-50%, -56%);
+    width: 440px;
+    height: 290px;
+    overflow: hidden;
+    z-index: 3;
+    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+  }
+  #hero-shack img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+  }
+  #hero-content {
+    position: absolute;
+    bottom: 36px;
+    left: 40px;
+  }
+  #hero-call {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 64px;
+    color: var(--green);
+    text-shadow: 0 0 30px var(--green), 0 0 60px rgba(57,255,20,0.3);
+    letter-spacing: 4px;
+    line-height: 1;
+  }
+  #hero-name {
+    font-family: 'Barlow', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: 2px;
+    margin-top: 4px;
+    margin-bottom: 2px;
+  }
+  #hero-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--gray);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+  #hero-flag {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 32px;
+    opacity: 0.7;
+  }
+
+  /* ---- NAV ---- */
+  nav {
+    background: var(--bg2);
+    border-bottom: 2px solid var(--green-dim);
+    display: flex;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+  nav a {
+    color: var(--gray);
+    text-decoration: none;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px 20px;
+    border-right: 1px solid #2a2f38;
+    transition: all 0.2s;
+  }
+  nav a:hover, nav a.active {
+    color: var(--green);
+    background: rgba(57,255,20,0.06);
+  }
+
+  /* ---- LAYOUT ---- */
+  #main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 20px;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 28px;
+  }
+
+  /* ---- TICKER DX ---- */
+  #ticker {
+    background: #0d0f12;
+    border: 1px solid var(--green-dim);
+    padding: 8px 16px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 0 0 8px 0;
+    grid-column: 1 / -1;
+  }
+  #ticker-inner {
+    display: inline-block;
+    animation: scroll-ticker 40s linear infinite;
+  }
+  @keyframes scroll-ticker {
+    from { transform: translateX(100vw); }
+    to   { transform: translateX(-100%); }
+  }
+
+  /* ---- POSTS ---- */
+  .post {
+    background: var(--bg2);
+    border: 1px solid #2a2f38;
+    border-left: 3px solid var(--green-dim);
+    padding: 22px 24px;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+  }
+  .post:hover { border-left-color: var(--green); }
+  .post-meta {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--green-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .post-meta .band {
+    background: var(--green-dim);
+    color: #0d0f12;
+    padding: 1px 6px;
+    margin-left: 8px;
+    font-weight: 700;
+  }
+  .post h2 {
+    font-family: 'Barlow', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 10px;
+  }
+  .post p { color: var(--gray); font-size: 14px; line-height: 1.7; }
+  .read-more {
+    display: inline-block;
+    margin-top: 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    text-decoration: none;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--green-dim);
+  }
+
+  /* ---- SIDEBAR ---- */
+  .widget {
+    background: var(--bg2);
+    border: 1px solid #2a2f38;
+    margin-bottom: 20px;
+  }
+  .widget-title {
+    background: var(--bg3);
+    border-bottom: 2px solid var(--green-dim);
+    padding: 10px 16px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--green);
+  }
+  .widget-body { padding: 14px 16px; }
+  .widget-body table { width: 100%; border-collapse: collapse; }
+  .widget-body td {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    padding: 5px 4px;
+    border-bottom: 1px solid #2a2f38;
+    color: var(--light);
+  }
+  .widget-body td:first-child { color: var(--green-dim); width: 110px; }
+  .band-row td { padding: 4px; }
+  .band-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--gray);
+  }
+  .band-bar {
+    height: 8px;
+    background: var(--bg3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+  .band-fill {
+    height: 100%;
+    background: var(--green);
+    opacity: 0.6;
+    transition: width 1s ease;
+  }
+
+  .qso-item {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 4px 0;
+    border-bottom: 1px solid #2a2f38;
+    color: var(--light);
+  }
+  .qso-item span { color: var(--green-dim); }
+
+  /* ---- FOOTER ---- */
+  footer {
+    background: #0d0f12;
+    border-top: 2px solid var(--green-dim);
+    padding: 20px;
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--green-dim);
+    margin-top: 20px;
+  }
+  footer b { color: var(--green); }
+
+  /* ---- SECTIONS PLACEHOLDER (Fotos / Diplomas) ---- */
+  #section-fotos, #section-diplomas {
+    grid-column: 1 / -1;
+    background: var(--bg2);
+    border: 1px dashed var(--green-dim);
+    border-radius: 4px;
+    padding: 36px;
+    text-align: center;
+    color: var(--green-dim);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 2px;
+  }
+  #section-fotos h3, #section-diplomas h3 {
+    color: var(--green);
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  @media (max-width: 768px) {
+    #main { grid-template-columns: 1fr; }
+    #hero-call { font-size: 42px; }
+    #hero { height: 300px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div><span class="topbar-label">Solar Flux</span> <b id="sf">—</b></div>
+  <div><span class="topbar-label">A-Index</span> <b id="ai">—</b></div>
+  <div><span class="topbar-label">K-Index</span> <b id="ki">—</b></div>
+  <div><span class="topbar-label">X-Ray</span> <b id="xr">—</b></div>
+  <div><span class="topbar-label">UTC</span> <b id="utc">—</b></div>
+</div>
+
+<!-- HERO -->
+<div id="hero">
+  <img id="hero-img" src="desfile.jpg" alt="Radio Club LU2NA – Comodoro Rivadavia">
+  <div id="hero-overlay"></div>
+  <div id="hero-shack">
+    <img src="shack.jpg" alt="LU2WBA operando">
+  </div>
+  <div id="hero-content">
+    <div id="hero-call">LU2WBA</div>
+    <div id="hero-name">Francisco Hugo Rodriguez</div>
+    <div id="hero-sub">Digital Mode Station &nbsp;·&nbsp; Comodoro Rivadavia, Patagonia</div>
+  </div>
+  <div id="hero-flag">🇦🇷</div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="active">Inicio</a>
+  <a href="#">Blog</a>
+  <a href="#">Proyectos</a>
+  <a href="#">Log QSO</a>
+  <a href="#">APRS</a>
+  <a href="#section-fotos">Fotos</a>
+  <a href="#section-diplomas">Diplomas</a>
+  <a href="#">Equipo</a>
+  <a href="#">QSL / Contacto</a>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- TICKER -->
+  <div id="ticker">
+    <div id="ticker-inner">
+      &nbsp;DX CLUSTER &nbsp;▸&nbsp;
+      TT1GD · 50313.0 · FT8 · LU2WBA · Comodoro→Ndjamena &nbsp;▸&nbsp;
+      PY5DQ · 14074.0 · FT8 · LU2WBA &nbsp;▸&nbsp;
+      CE3SX · 7074.0 · FT8 &nbsp;▸&nbsp;
+      YB2TST · 14070.0 · PSK31 &nbsp;▸&nbsp;
+      PU2POP · 144174.0 · JS8Call &nbsp;▸&nbsp;
+      VK4NM · 21074.0 · FT8 &nbsp;▸&nbsp;
+      ZL3TE · 14074.0 · FT8 &nbsp;▸&nbsp;
+    </div>
+  </div>
+
+  <!-- POSTS -->
+  <div id="posts">
+
+    <div class="post">
+      <div class="post-meta">2024-05-18 &nbsp;|&nbsp; Propagación <span class="band">6m</span></div>
+      <h2>Apertura esporádica en Banda de 6 metros – Patagonia Norte</h2>
+      <p>Semana de actividad intensa en 50 MHz. Se registraron múltiples aperturas esporádicas con estaciones de Brasil, Uruguay y el sur de Chile. FT8 resultó fundamental para aprovechar los breves picos de propagación. Niveles de señal sorprendentemente altos hacia CE y PY.</p>
+      <a href="#" class="read-more">Leer más →</a>
+    </div>
+
+    <div class="post">
+      <div class="post-meta">2024-04-30 &nbsp;|&nbsp; Equipo <span class="band">HF</span></div>
+      <h2>Primeras impresiones del FT-710 AESS en modos digitales</h2>
+      <p>Tras varios meses de uso intensivo del nuevo transceptor, comparto mis conclusiones sobre el rendimiento en FT8, PSK31 y JS8Call. El filtro roofing de 3 kHz hace una diferencia notable en las bandas congestionadas. Configuración del CAT con WSJT-X detallada al final del artículo.</p>
+      <a href="#" class="read-more">Leer más →</a>
+    </div>
+
+    <div class="post">
+      <div class="post-meta">2024-04-12 &nbsp;|&nbsp; Antenas <span class="band">HF</span></div>
+      <h2>Construcción de dipolo fan para HF – Resultados en 40, 20 y 15m</h2>
+      <p>El dipolo fan multibanada terminó siendo la solución más limpia para el espacio disponible en la terraza. Sin trampas, sin pérdidas. Describo el proceso de construcción, los materiales utilizados en condiciones patagónicas (viento de 120 km/h a la orden del día) y las mediciones de ROE resultantes.</p>
+      <a href="#" class="read-more">Leer más →</a>
+    </div>
+
+    <div class="post">
+      <div class="post-meta">2024-03-28 &nbsp;|&nbsp; APRS <span class="band">2m</span></div>
+      <h2>Tracker APRS móvil integrado en el Kangoo – Primera salida</h2>
+      <p>El proyecto de tracker vehicular ya tiene su primera prueba de campo. Con un Pi 3B, GPS integrado y Dire Wolf como software TNC, el Kangoo emite beacons en 144.800 MHz con símbolo de automóvil. Primer viaje documentado: Comodoro – Caleta Olivia, 240 km con cobertura casi completa.</p>
+      <a href="#" class="read-more">Leer más →</a>
+    </div>
+
+  </div><!-- /posts -->
+
+  <!-- SIDEBAR -->
+  <aside>
+
+    <div class="widget">
+      <div class="widget-title">Condiciones HF</div>
+      <div class="widget-body">
+        <table>
+          <tr><td>Solar Flux</td><td id="sf2">cargando…</td></tr>
+          <tr><td>A-Index</td><td id="ai2">—</td></tr>
+          <tr><td>K-Index</td><td id="ki2">—</td></tr>
+          <tr><td>Sunspots</td><td id="ss">—</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="widget">
+      <div class="widget-title">Actividad por Banda</div>
+      <div class="widget-body">
+        <div class="band-label">160m</div><div class="band-bar"><div class="band-fill" style="width:15%"></div></div>
+        <div class="band-label">80m</div><div class="band-bar"><div class="band-fill" style="width:40%"></div></div>
+        <div class="band-label">40m</div><div class="band-bar"><div class="band-fill" style="width:80%"></div></div>
+        <div class="band-label">20m</div><div class="band-bar"><div class="band-fill" style="width:95%"></div></div>
+        <div class="band-label">15m</div><div class="band-bar"><div class="band-fill" style="width:60%"></div></div>
+        <div class="band-label">10m</div><div class="band-bar"><div class="band-fill" style="width:30%"></div></div>
+        <div class="band-label">6m</div><div class="band-bar"><div class="band-fill" style="width:20%"></div></div>
+        <div class="band-label">2m</div><div class="band-bar"><div class="band-fill" style="width:50%"></div></div>
+      </div>
+    </div>
+
+    <div class="widget">
+      <div class="widget-title">Últimos QSO</div>
+      <div class="widget-body">
+        <div class="qso-item"><b>TT1GD</b> <span>50.313 FT8</span></div>
+        <div class="qso-item"><b>VK4NM</b> <span>14.074 FT8</span></div>
+        <div class="qso-item"><b>CE3SX</b> <span>7.074 FT8</span></div>
+        <div class="qso-item"><b>PY5DQ</b> <span>14.074 FT8</span></div>
+        <div class="qso-item"><b>ZL3TE</b> <span>14.074 FT8</span></div>
+        <div class="qso-item"><b>LU5FF</b> <span>144.174 JS8</span></div>
+      </div>
+    </div>
+
+    <div class="widget">
+      <div class="widget-title">La Estación</div>
+      <div class="widget-body">
+        <table>
+          <tr><td>Indicativo</td><td>LU2WBA</td></tr>
+          <tr><td>Locator</td><td>GC47rm</td></tr>
+          <tr><td>QTH</td><td>Comodoro Rivadavia, Chubut</td></tr>
+          <tr><td>TRX</td><td>FT-710 AESS</td></tr>
+          <tr><td>Ant HF</td><td>Dipolo fan</td></tr>
+          <tr><td>Ant VHF</td><td>J-Pole 2m</td></tr>
+          <tr><td>Modos</td><td>FT8 · PSK · JS8 · APRS</td></tr>
+        </table>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- SECCIÓN FOTOS (placeholder) -->
+  <div id="section-fotos">
+    <h3>📷 Galería de Fotos</h3>
+    <p>Próximamente – Imágenes de la estación, activaciones y actividades del Radio Club</p>
+  </div>
+
+  <!-- SECCIÓN DIPLOMAS (placeholder) -->
+  <div id="section-diplomas">
+    <h3>🏆 Diplomas y Certificados</h3>
+    <p>Próximamente – DXCC, WAS, WAC y otros diplomas obtenidos</p>
+  </div>
+
+</div><!-- /main -->
+
+<footer>
+  <b>LU2WBA</b> · Digital Mode Station · Comodoro Rivadavia, Patagonia, Argentina &nbsp;|&nbsp;
+  QSL via Bureau / LoTW / eQSL &nbsp;|&nbsp; 73 de LU2WBA
+</footer>
+
+<script>
+  // UTC clock
+  function updateClock() {
+    const now = new Date();
+    const utc = now.toUTCString().split(' ')[4];
+    document.getElementById('utc').textContent = utc + ' UTC';
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // Fetch solar data from HamQSL
+  async function fetchSolar() {
+    try {
+      const res = await fetch('https://www.hamqsl.com/solarxml.php');
+      const txt = await res.text();
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(txt, 'application/xml');
+      const get = (tag) => xml.getElementsByTagName(tag)[0]?.textContent || '—';
+      const sf = get('solarflux');
+      const ai = get('aindex');
+      const ki = get('kindex');
+      const xr = get('xray');
+      const ss = get('sunspots');
+      document.getElementById('sf').textContent = sf;
+      document.getElementById('ai').textContent = ai;
+      document.getElementById('ki').textContent = ki;
+      document.getElementById('xr').textContent = xr;
+      document.getElementById('sf2').textContent = sf;
+      document.getElementById('ai2').textContent = ai;
+      document.getElementById('ki2').textContent = ki;
+      document.getElementById('ss').textContent = ss;
+    } catch(e) {
+      document.getElementById('sf').textContent = 'N/D';
+    }
+  }
+  fetchSolar();
+  setInterval(fetchSolar, 300000);
+</script>
+
+</body>
+</html>
